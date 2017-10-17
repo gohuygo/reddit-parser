@@ -1,14 +1,20 @@
 'use strict';
 
+require('dotenv').config();
+
 const program = require('commander');
 const pkg = require('./package.json');
+
 const snoowrap = require('snoowrap');
 const reddit = new snoowrap({
-  userAgent: 'put your user-agent string here',
-  clientId: 'put your client id here',
-  clientSecret: 'put your client secret here',
-  refreshToken: 'put your refresh token here'
+  userAgent: process.env.REDDITUSERAGENT,
+  clientId: process.env.REDDITCLIENTID,
+  clientSecret: process.env.REDDITCLIENTSECRET,
+  username: process.env.REDDITUSERNAME,
+  password: process.env.REDDITPASSWORD
 });
+
+
 program
   .version(pkg.version)
   .description(pkg.description)
@@ -18,6 +24,7 @@ program
   .command('scrape [thread]')
   .description('scrape all comments from thread')
   .action((thread ='/') => {
+    reddit.getHot().map(post => post.title).then(console.log);
 
   })
 
