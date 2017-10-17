@@ -4,7 +4,7 @@ require('dotenv').config();
 
 const program = require('commander');
 const pkg = require('./package.json');
-
+const moment = require('moment');
 const snoowrap = require('snoowrap');
 const reddit = new snoowrap({
   userAgent: process.env.REDDITUSERAGENT,
@@ -13,7 +13,6 @@ const reddit = new snoowrap({
   username: process.env.REDDITUSERNAME,
   password: process.env.REDDITPASSWORD
 });
-
 
 program
   .version(pkg.version)
@@ -24,8 +23,11 @@ program
   .command('scrape [thread]')
   .description('scrape all comments from thread')
   .action((thread ='/') => {
-    reddit.getHot().map(post => post.title).then(console.log);
-
+    const ethtrader = reddit.getSubreddit('ethtrader')
+    // ethtrader.search({query: 'Daily General Discussion - September 30, 2017'}).then(console.log)
+    // reddit.getSubmission('4j8p6d').expandReplies({limit: Infinity, depth: Infinity}).then(console.log)
+    console.log(moment().subtract(1, 'days').format('MMMM D, YYYY'))
+    // console.log(ethtrader)
   })
 
 program.parse(process.argv);
