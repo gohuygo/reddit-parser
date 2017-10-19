@@ -24,9 +24,19 @@ program
   .description('scrape all comments from thread')
   .action((thread ='/') => {
     const ethtrader = reddit.getSubreddit('ethtrader')
-    // ethtrader.search({query: 'Daily General Discussion - September 30, 2017'}).then(console.log)
+
+    let arr = new Array(50);
+
+    for (var i = 0; i < arr.length; i++) {
+      let date = moment().subtract(0-i, 'days').format('MMMM D, YYYY')
+      let dailyThreadId = ethtrader.search({query: 'Daily General Discussion - ' + date})
+                                   .then(a=>Promise.resolve(a).then(b=>console.log(b[0]['id'])))
+      arr[i] = dailyThreadId
+    }
+
+    console.log(arr)
     // reddit.getSubmission('4j8p6d').expandReplies({limit: Infinity, depth: Infinity}).then(console.log)
-    console.log(moment().subtract(1, 'days').format('MMMM D, YYYY'))
+
     // console.log(ethtrader)
   })
 
