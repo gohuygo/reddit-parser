@@ -26,22 +26,25 @@ program
   .action(() => {
     const ethtrader = reddit.getSubreddit('ethtrader')
 
-    let numberOfDaysBack = 50;
-    let arrIds           = new Array(0);
+    let numberOfDaysBack    = 50;
+    let promiseDailyThreads = new Array(0);
 
     for (var i = 0; i < numberOfDaysBack; i++) {
       let date        = moment().subtract(0+i, 'days').format('MMMM D, YYYY')
       let dailyThread = ethtrader.search({query: 'Daily General Discussion - ' + date})
 
-      Promise.resolve(dailyThread).then(a=>{
-        arrIds.push(a[0].id)
-      })
+      promiseDailyThreads.push(dailyThread)
     }
 
-    setTimeout(function(){
-      console.log(arrIds)
-    },1000)
-    // reddit.getSubmission('4j8p6d').expandReplies({limit: Infinity, depth: Infinity}).then(console.log)
+    Promise.all(promiseDailyThreads).then(results => {
+      let threadIds = results.map(result=>result[0].id)
+      threadIds.forEach((threadId) => {
+        // setTimeout(function(){console.log('')}, 100)
+        reddit.getSubmission(threadId).expandReplies({limit: Infinity, depth: Infinity}).then(console.log)
+      })
+    })
+
+     // reddit.getSubmission('4j8p6d').expandReplies({limit: Infinity, depth: Infinity}).then(console.log)
 
     // console.log(ethtrader)
   })
