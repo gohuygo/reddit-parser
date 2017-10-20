@@ -7,7 +7,7 @@ const pkg = require('./package.json');
 const moment = require('moment');
 const snoowrap = require('snoowrap');
 
-const reddita = new snoowrap({
+const reddit = new snoowrap({
   userAgent: process.env.REDDITUSERAGENT,
   clientId: process.env.REDDITCLIENTID,
   clientSecret: process.env.REDDITCLIENTSECRET,
@@ -23,8 +23,8 @@ program
 program
   .command('scrape [thread]')
   .description('scrape all comments from thread')
-  .action((thread ='/') => {
-    const ethtrader = reddita.getSubreddit('ethtrader')
+  .action(() => {
+    const ethtrader = reddit.getSubreddit('ethtrader')
 
     let numberOfDaysBack = 50;
     let arrIds           = new Array(0);
@@ -38,6 +38,9 @@ program
       })
     }
 
+    setTimeout(function(){
+      console.log(arrIds)
+    },1000)
     // reddit.getSubmission('4j8p6d').expandReplies({limit: Infinity, depth: Infinity}).then(console.log)
 
     // console.log(ethtrader)
