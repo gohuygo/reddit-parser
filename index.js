@@ -43,10 +43,6 @@ program
         reddit.getSubmission(threadId).expandReplies({limit: Infinity, depth: Infinity}).then(console.log)
       })
     })
-
-     // reddit.getSubmission('4j8p6d').expandReplies({limit: Infinity, depth: Infinity}).then(console.log)
-
-    // console.log(ethtrader)
   })
 
 program.parse(process.argv);
