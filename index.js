@@ -44,22 +44,21 @@ program
       let threadIds = results.map(result=>result[0].id)
       threadIds.forEach((threadId) => {
         reddit.getSubmission(threadId).expandReplies({limit: Infinity, depth: Infinity}).then(thread => {
-          // console.log(threadId)
           let threadDate = moment.unix(thread.created_utc).format('MMMM D, YYYY')
-          thread.comments.map(c =>{
-            let body = c.body
+
+          let mapping;
+          mapping = thread.comments.map(c =>{
+            let body = c.body.replace(/(?:\r\n|\r|\n)/g, '');
             let score = c.score
             let sourceId = c.id
-            let sourceName = 'reddit'
-            let date = moment.unix(c.created_utc).format('MMMM D, YYYY')
-            console.log(threadDate)
 
-            // console.log(score, body, sourceId, sourceName)
+            let row = threadDate + ", " + score + ", " + body + ", " + sourceId + "\r\n"
+            console.log(row)
 
-            // fs.writeFile('target.txt', 'hello world', (err) => {
-            //   if (err) throw err
-            //   console.log('File saved!')
-            // })
+            fs.appendFile(`reddit_${moment.unix(thread.created_utc).format('MMDDYY')}.csv`, row, (err) => {
+              if (err) throw err
+              console.log('File saved!')
+            })
           })
         })
       })
