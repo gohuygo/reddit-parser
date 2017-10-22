@@ -51,24 +51,30 @@ program
 
           let header = "threadDate, score, body, sourceId, subreddit, threadName \r\n"
 
-          fs.appendFile(`csv/reddit_${moment.unix(thread.created_utc).format('MMDDYY')}.csv`, header, (err) => {
-            if (err) throw err
-            console.log('Write Header:' + threadId)
-          })
+          let filePath = `csv/reddit_${moment.unix(thread.created_utc).format('MMDDYY')}.csv`
 
-          let mapping;
-          mapping = thread.comments.map(c =>{
-            let body = c.body.replace(/(?:\r\n|\r|\n)/g, '');
-            let score = c.score
-            let sourceId = c.id
-
-            let row = threadDate + ", " + score + ", " + body + ", " + sourceId +  ", " + subreddit +  ", " + threadName + "\r\n"
-
-            fs.appendFile(`csv/reddit_${moment.unix(thread.created_utc).format('MMDDYY')}.csv`, row, (err) => {
+          try {
+            if(fs.openSync(filePath,'r')) return
+          } catch (err) {
+            fs.appendFile(filePath, header, (err) => {
               if (err) throw err
-              console.log('Write Row:' + row)
+              console.log('Write Header:' + threadId)
             })
-          })
+
+            let mapping;
+            mapping = thread.comments.map(c =>{
+              let body = c.body.replace(/(?:\r\n|\r|\n)/g, '');
+              let score = c.score
+              let sourceId = c.id
+
+              let row = threadDate + ", " + score + ", " + body + ", " + sourceId +  ", " + subreddit +  ", " + threadName + "\r\n"
+
+              fs.appendFile(`csv/reddit_${moment.unix(thread.created_utc).format('MMDDYY')}.csv`, row, (err) => {
+                if (err) throw err
+                console.log('Write Row:' + sourceId)
+              })
+            })
+          }
         })
       })
     })
