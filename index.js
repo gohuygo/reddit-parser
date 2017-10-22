@@ -36,7 +36,8 @@ program
     let promiseDailyThreads = new Array(0)
     for (var i = 0; i < numberOfDaysBack; i++) {
       let date = moment().subtract(i+1, 'days').format('MMMM D, YYYY')
-      let dailyThread = ethtrader.search({query: 'Daily General Discussion - ' + date})
+      let threadName = 'Daily General Discussion - ' + date
+      let dailyThread = ethtrader.search({query: threadName})
       promiseDailyThreads.push(dailyThread)
     }
 
@@ -45,6 +46,15 @@ program
       threadIds.forEach((threadId) => {
         reddit.getSubmission(threadId).expandReplies({limit: Infinity, depth: Infinity}).then(thread => {
           let threadDate = moment.unix(thread.created_utc).format('MMMM D, YYYY')
+          let threadName = 'Daily General Discussion - ' + threadDate
+          let subreddit = 'ethtrader'
+
+          let header = "threadDate, score, body, sourceId, subreddit, threadName \r\n"
+
+          fs.appendFile(`csv/reddit_${moment.unix(thread.created_utc).format('MMDDYY')}.csv`, header, (err) => {
+            if (err) throw err
+            console.log('Write Header:' + threadId)
+          })
 
           let mapping;
           mapping = thread.comments.map(c =>{
@@ -52,12 +62,11 @@ program
             let score = c.score
             let sourceId = c.id
 
-            let row = threadDate + ", " + score + ", " + body + ", " + sourceId + "\r\n"
-            console.log(row)
+            let row = threadDate + ", " + score + ", " + body + ", " + sourceId +  ", " + subreddit +  ", " + threadName + "\r\n"
 
-            fs.appendFile(`reddit_${moment.unix(thread.created_utc).format('MMDDYY')}.csv`, row, (err) => {
+            fs.appendFile(`csv/reddit_${moment.unix(thread.created_utc).format('MMDDYY')}.csv`, row, (err) => {
               if (err) throw err
-              console.log('File saved!')
+              console.log('Write Row:' + row)
             })
           })
         })
