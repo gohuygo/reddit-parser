@@ -32,18 +32,17 @@ program
   .action(() => {
     const ethtrader = reddit.getSubreddit('ethtrader')
 
-    let numberOfDaysBack    = 1
+    let numberOfDaysBack    = 30
     let promiseDailyThreads = new Array(0)
     for (var i = 0; i < numberOfDaysBack; i++) {
-      let date = moment().subtract(i+1, 'days').format('MMMM D, YYYY')
+      let date = moment().subtract(i+(2*numberOfDaysBack), 'days').format('MMMM D, YYYY')
       let threadName = 'Daily General Discussion - ' + date
+      console.log('Querying: ' + threadName)
       let dailyThread = ethtrader.search({query: threadName})
-      promiseDailyThreads.push(dailyThread)
-    }
-
-    Promise.all(promiseDailyThreads).then(results => {
-      let threadIds = results.map(result=>result[0].id)
-      threadIds.forEach((threadId) => {
+      // promiseDailyThreads.push(dailyThread)
+      Promise.resolve(dailyThread).then(result => {
+        let threadId = result[0].id
+        console.log(threadId)
         reddit.getSubmission(threadId).expandReplies({limit: Infinity, depth: Infinity}).then(thread => {
           let threadDate = moment.unix(thread.created_utc).format('MMMM D, YYYY')
           let threadName = 'Daily General Discussion - ' + threadDate
@@ -77,8 +76,9 @@ program
           }
         })
       })
-    })
+    }
   })
+
 
 
 
