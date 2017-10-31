@@ -32,10 +32,17 @@ program
   .action(() => {
     const ethtrader = reddit.getSubreddit('ethtrader')
 
-    let numberOfDaysBack    = 30
+    let numberOfDaysBack    = 10
     let promiseDailyThreads = new Array(0)
+    let batch = 3
     for (var i = 0; i < numberOfDaysBack; i++) {
-      let date = moment().subtract(i+(2*numberOfDaysBack), 'days').format('MMMM D, YYYY')
+      // plus one because we want to go back at least one day since current day might
+      // not have all comments yet
+      let momentTime = moment().subtract(1+i+(batch*numberOfDaysBack), 'days')
+
+      let date = momentTime.format('MMMM D, YYYY')
+      let dateFile = momentTime.format('MMDDYY')
+
       let threadName = 'Daily General Discussion - ' + date
       console.log('Querying: ' + threadName)
       let dailyThread = ethtrader.search({query: threadName})
@@ -43,14 +50,13 @@ program
       Promise.resolve(dailyThread).then(result => {
         let threadId = result[0].id
         console.log(threadId)
-        reddit.getSubmission(threadId).expandReplies({limit: Infinity, depth: Infinity}).then(thread => {
-          let threadDate = moment.unix(thread.created_utc).format('MMMM D, YYYY')
-          let threadName = 'Daily General Discussion - ' + threadDate
+        reddit.getSubmission(threadId).expandReplies({limit: Infinity, depth: 1}).then(thread => {
+          let threadName = 'Daily General Discussion - ' + date
           let subreddit = 'ethtrader'
 
           let header = "threadDate, score, body, sourceId, subreddit, threadName \r\n"
 
-          let filePath = `csv/reddit_${moment.unix(thread.created_utc).format('MMDDYY')}.csv`
+          let filePath = `csv/reddit_${dateFile}.csv`
 
           try {
             if(fs.openSync(filePath,'r')) return
@@ -66,9 +72,9 @@ program
               let score = c.score
               let sourceId = c.id
 
-              let row = threadDate + ", " + score + ", " + body + ", " + sourceId +  ", " + subreddit +  ", " + threadName + "\r\n"
+              let row = date + ", " + score + ", " + body + ", " + sourceId +  ", " + subreddit +  ", " + threadName + "\r\n"
 
-              fs.appendFile(`csv/reddit_${moment.unix(thread.created_utc).format('MMDDYY')}.csv`, row, (err) => {
+              fs.appendFile(filePath, row, (err) => {
                 if (err) throw err
                 console.log('Write Row:' + sourceId)
               })
@@ -78,8 +84,6 @@ program
       })
     }
   })
-
-
 
 
 program.parse(process.argv)
